@@ -403,6 +403,14 @@
 }
 
 
+- (void)buttonClick:(UIButton *)sender {
+    
+    !self.clickBlock?:self.clickBlock();
+    
+    
+}
+
+
 
 
 
