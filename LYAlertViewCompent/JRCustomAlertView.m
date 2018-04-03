@@ -20,9 +20,11 @@
 @property (nonatomic, strong) UILabel *messageLabel;
 @property (nonatomic, strong) UIView *boundingView;
 @property (nonatomic, strong) UIView *backgroundView;
+
 @end
 
 static NSUInteger magicNumber = 2344;
+
 
 @implementation JRCustomAlertView
 
@@ -161,7 +163,7 @@ static NSUInteger magicNumber = 2344;
                     UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(button.frame) - 0.5, button.frame.origin.y, 0.5, button.frame.size.height)];
                     lineView.backgroundColor = [UIColor lightGrayColor];
                     
-                    [self.boundingView addSubview:lineView];
+//                    [self.boundingView addSubview:lineView];
                 }
               
             
@@ -259,14 +261,23 @@ static NSUInteger magicNumber = 2344;
     self.boundingView.center = self.center;
 }
 
-- (void)addMessageView:(NSString *)message {
+
+- (void)addAttibuteTitle:(NSAttributedString *)title {
     
-    
+    if (!title.length) {
+        return;
+    }
+    self.titleLabel.center = CGPointMake(self.boundingView.center.x , self.titleLabel.center.y);
+    [self.boundingView addSubview:self.titleLabel];
+    self.titleLabel.attributedText = title;
+}
+
+- (void)addAttibuteMessage:(NSAttributedString *)message {
     if (!message.length) {
         return;
     }
     
-    CGFloat height = [message boundingRectWithSize:CGSizeMake(self.boundingView.bounds.size.width - 48, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:self.messageLabel.font} context:nil].size.height;
+    CGFloat height = [message boundingRectWithSize:CGSizeMake(self.boundingView.bounds.size.width - 48, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading | NSStringDrawingTruncatesLastVisibleLine context:nil].size.height;
     if (!self.titleLabel.text.length) {
         self.messageLabel.frame = CGRectMake(0, 24, self.boundingView.bounds.size.width - 48, height);
     } else {
@@ -275,7 +286,22 @@ static NSUInteger magicNumber = 2344;
     
     [self.boundingView addSubview:self.messageLabel];
     self.messageLabel.center = CGPointMake(self.boundingView.center.x, self.messageLabel.center.y);
-    self.messageLabel.text = message;
+    self.messageLabel.attributedText = message;
+}
+- (void)addMessageView:(NSString *)message {
+    
+    
+    if (!message.length) {
+        return;
+    }
+    
+    NSMutableAttributedString *attributed = [[NSMutableAttributedString alloc]init];
+    
+    NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc]init];
+    paragraph.lineSpacing = 10.f;
+    NSMutableAttributedString *att = [[NSMutableAttributedString alloc]initWithString:[NSString stringWithFormat:@"%@",message] attributes:@{NSFontAttributeName : self.messageLabel.font , NSForegroundColorAttributeName : self.messageLabel.textColor , NSParagraphStyleAttributeName : paragraph}];
+    [attributed appendAttributedString:att];
+    [self addAttibuteMessage:attributed];
 }
 
 - (void)addTitleView:(NSString *)title {
@@ -369,32 +395,7 @@ static NSUInteger magicNumber = 2344;
 }
 
 
-- (void)addAttibuteTitle:(NSAttributedString *)title {
-    
-    if (!title.length) {
-        return;
-    }
-    self.titleLabel.center = CGPointMake(self.boundingView.center.x , self.titleLabel.center.y);
-    [self.boundingView addSubview:self.titleLabel];
-    self.titleLabel.attributedText = title;
-}
 
-- (void)addAttibuteMessage:(NSAttributedString *)message {
-    if (!message.length) {
-        return;
-    }
-
-    CGFloat height = [message boundingRectWithSize:CGSizeMake(self.boundingView.bounds.size.width - 48, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading | NSStringDrawingTruncatesLastVisibleLine context:nil].size.height;
-    if (!self.titleLabel.text.length) {
-        self.messageLabel.frame = CGRectMake(0, 24, self.boundingView.bounds.size.width - 48, height);
-    } else {
-        self.messageLabel.frame = CGRectMake(0, CGRectGetMaxY(self.titleLabel.frame) + 12, self.boundingView.bounds.size.width - 48, height);
-    }
-    
-    [self.boundingView addSubview:self.messageLabel];
-    self.messageLabel.center = CGPointMake(self.boundingView.center.x, self.messageLabel.center.y);
-    self.messageLabel.attributedText = message;
-}
 @end
 
 

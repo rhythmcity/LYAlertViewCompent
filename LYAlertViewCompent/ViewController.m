@@ -30,7 +30,7 @@
     }
     
     
-    [[JRCustomAlertView alertViewWithTitle:@"请进行风险测评后购买" message:@"根据监管规定，购买理财产品前需进行风险测评。" type:AlertViewStyleTypeButtonVertical click:^(NSInteger index) {
+    [[JRCustomAlertView alertViewWithTitle:@"" message:@"密码错误密码错误密码错误密码错误密码错误密码错误密码错误密码错误密码错误密码错误密码错误" type:AlertViewStyleTypeButtonVertical click:^(NSInteger index) {
         NSLog(@"%ld",(long)index);
 
     } buttons:@"1",@"2", nil] showInView:self.view];

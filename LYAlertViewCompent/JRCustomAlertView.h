@@ -21,8 +21,6 @@ typedef NS_ENUM(NSUInteger, AlertViewStyleType) {
 @interface JRCustomAlertView : UIView
 
 @property (nonatomic, strong, readonly) UIView *contentView; // 自定义样式的内容View
-@property (nonatomic, strong, readonly) UILabel *titleLabel;   // 开放组件 方便自定义颜色字体
-@property (nonatomic, strong, readonly) UILabel *messageLabel;  // 开放组件 方便自定义颜色字体
 
 
 /**
