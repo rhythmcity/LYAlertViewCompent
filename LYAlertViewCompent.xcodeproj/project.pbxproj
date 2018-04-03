@@ -16,6 +16,7 @@
 		BA57EDA420723B40001ACCDD /* LYAlertViewCompentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BA57EDA320723B40001ACCDD /* LYAlertViewCompentTests.m */; };
 		BA57EDAF20723B40001ACCDD /* LYAlertViewCompentUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = BA57EDAE20723B40001ACCDD /* LYAlertViewCompentUITests.m */; };
 		BA57EDBE20723C0F001ACCDD /* JRCustomAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = BA57EDBD20723C0F001ACCDD /* JRCustomAlertView.m */; };
+		BADDE39320733AA4006C1D53 /* JRAlertViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = BADDE39220733AA4006C1D53 /* JRAlertViewModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,8 @@
 		BA57EDB020723B40001ACCDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BA57EDBC20723C0F001ACCDD /* JRCustomAlertView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JRCustomAlertView.h; sourceTree = "<group>"; };
 		BA57EDBD20723C0F001ACCDD /* JRCustomAlertView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JRCustomAlertView.m; sourceTree = "<group>"; };
+		BADDE39120733AA4006C1D53 /* JRAlertViewModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JRAlertViewModel.h; sourceTree = "<group>"; };
+		BADDE39220733AA4006C1D53 /* JRAlertViewModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JRAlertViewModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 				BA57ED8E20723B40001ACCDD /* ViewController.m */,
 				BA57EDBC20723C0F001ACCDD /* JRCustomAlertView.h */,
 				BA57EDBD20723C0F001ACCDD /* JRCustomAlertView.m */,
+				BADDE39120733AA4006C1D53 /* JRAlertViewModel.h */,
+				BADDE39220733AA4006C1D53 /* JRAlertViewModel.m */,
 				BA57ED9020723B40001ACCDD /* Main.storyboard */,
 				BA57ED9320723B40001ACCDD /* Assets.xcassets */,
 				BA57ED9520723B40001ACCDD /* LaunchScreen.storyboard */,
@@ -272,6 +277,7 @@
 			files = (
 				BA57EDBE20723C0F001ACCDD /* JRCustomAlertView.m in Sources */,
 				BA57ED8F20723B40001ACCDD /* ViewController.m in Sources */,
+				BADDE39320733AA4006C1D53 /* JRAlertViewModel.m in Sources */,
 				BA57ED9A20723B40001ACCDD /* main.m in Sources */,
 				BA57ED8C20723B40001ACCDD /* AppDelegate.m in Sources */,
 			);

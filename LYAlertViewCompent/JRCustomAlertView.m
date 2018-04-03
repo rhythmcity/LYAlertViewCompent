@@ -22,6 +22,8 @@
 @property (nonatomic, strong) UIView *backgroundView;
 @end
 
+static NSUInteger magicNumber = 2344;
+
 @implementation JRCustomAlertView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -41,107 +43,35 @@
                              click:(AlertViewClick)clickBlock
                            buttons:(NSString *)buttons,... {
     
-    JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    
-    
-    view.clickBlock = clickBlock;
-    view.title = title;
-    view.type = type;
-    
     NSMutableArray *buttonArray = [NSMutableArray array];
     va_list args;
     va_start(args, buttons);
     for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
-        [buttonArray addObject:key];
+        JRAlertViewModel *buttonModel = [[JRAlertViewModel alloc] init];
+        buttonModel.title = key;
+        buttonModel.titleColor = @"";
+        [buttonArray addObject:buttonModel];
     }
     va_end(args);
-    [view addTitleView:title];
-    [view addMessageView:message];
-    [view addButtons:buttonArray];
-    return view;
-}
-
-
-+ (instancetype)alertViewWithAttributedTitle:(NSAttributedString *)title
-                           Attributedmessage:(NSAttributedString *)message
-                                        type:(AlertViewStyleType)type
-                                       click:(AlertViewClick)clickBlock
-                                     buttons:(NSString *)buttons,... {
-    JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    
-    
-    view.clickBlock = clickBlock;
-    view.attributedtitle = title;
-    view.type = type;
-    
-    NSMutableArray *buttonArray = [NSMutableArray array];
-    va_list args;
-    va_start(args, buttons);
-    for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
-        [buttonArray addObject:key];
-    }
-    va_end(args);
-    [view addAttibuteTitle:title];
-    [view addAttibuteMessage:message];
-    [view addButtons:buttonArray];
-    return view;
-}
-
-
-+ (instancetype)alertViewWithAttributedTitle:(NSAttributedString *)title
-                                 contentView:(UIView *)contentView
-                                        type:(AlertViewStyleType)type
-                                       click:(AlertViewClick)clickBlock
-                                     buttons:(NSString *)buttons,... {
-    
-    JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    
-    
-    view.clickBlock = clickBlock;
-    view.attributedtitle = title;
-    view.contentView = contentView;
-    view.type = type;
-    
-    NSMutableArray *buttonArray = [NSMutableArray array];
-    va_list args;
-    va_start(args, buttons);
-    for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
-        [buttonArray addObject:key];
-    }
-    va_end(args);
-    [view addAttibuteTitle:title];
-    [view addCustomContentView:contentView];
-    [view addButtons:buttonArray];
-    
-    return view;
+    return [JRCustomAlertView alertViewWithTitle:title message:message type:type click:clickBlock buttonArray:buttonArray];;
 }
 
 + (instancetype)alertViewWithTitle:(NSString *)title
-                       contentView:(UIView *)contentView
+                           message:(NSString *)message
                               type:(AlertViewStyleType)type
                              click:(AlertViewClick)clickBlock
-                           buttons:(NSString *)buttons,... {
+                       buttonArray:(NSArray<JRAlertViewModel *> *)buttons {
+
     JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    
-    
     view.clickBlock = clickBlock;
     view.title = title;
-    view.contentView = contentView;
     view.type = type;
-    
-    NSMutableArray *buttonArray = [NSMutableArray array];
-    va_list args;
-    va_start(args, buttons);
-    for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
-        [buttonArray addObject:key];
-    }
-    va_end(args);
     [view addTitleView:title];
-    [view addCustomContentView:contentView];
-    [view addButtons:buttonArray];
-    
+    [view addMessageView:message];
+    [view addButtons:buttons];
     return view;
 }
+
 
 #pragma mark - setter and getter
 
@@ -218,16 +148,17 @@
             
             for (int i = 0 ; i < buttonArray.count ; i ++) {
                 
-                NSString * buttonTitle = buttonArray[i];
+                JRAlertViewModel *model = buttonArray[i];
                 UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                [button setTitle:buttonTitle forState:UIControlStateNormal];
-                [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-                
+                [button setTitle:model.title forState:UIControlStateNormal];
+                [button setTitleColor:model.titleColor.length ? [UIColor blueColor] : [UIColor blackColor] forState:UIControlStateNormal];
+                button.tag = magicNumber + i;
+                [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
                 button.frame = CGRectMake(self.boundingView.bounds.size.width / buttonArray.count * i, y, self.boundingView.bounds.size.width / buttonArray.count, 50);
                 [self.boundingView addSubview:button];
                 
                 if (i != buttonArray.count - 1) {
-                    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(button.frame) - 1, button.frame.origin.y, 1, button.frame.size.height)];
+                    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(button.frame) - 0.5, button.frame.origin.y, 0.5, button.frame.size.height)];
                     lineView.backgroundColor = [UIColor lightGrayColor];
                     
                     [self.boundingView addSubview:lineView];
@@ -247,15 +178,16 @@
             
             for (int i = 0 ; i < buttonArray.count ; i ++) {
                 
-                NSString * buttonTitle = buttonArray[i];
+                JRAlertViewModel *model = buttonArray[i];
                 UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                [button setTitle:buttonTitle forState:UIControlStateNormal];
-                [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        
+                [button setTitle:model.title forState:UIControlStateNormal];
+                [button setTitleColor:model.titleColor.length ? [UIColor blueColor] : [UIColor blackColor] forState:UIControlStateNormal];
+                button.tag = magicNumber + i;
+                [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
                 button.frame = CGRectMake(0, y + i * 50, self.boundingView.bounds.size.width, 50);
                 [self.boundingView addSubview:button];
                 
-                UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0,  button.frame.origin.y , button.frame.size.width,1)];
+                UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0,  button.frame.origin.y , button.frame.size.width,0.5)];
                 lineView.backgroundColor = [UIColor lightGrayColor];
                     
                 [self.boundingView addSubview:lineView];
@@ -270,15 +202,16 @@
                 return;
             }
            
-                NSString * buttonTitle = buttonArray[0];
+                JRAlertViewModel *model = buttonArray[0];
                 UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                [button setTitle:buttonTitle forState:UIControlStateNormal];
-                [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-                
+                [button setTitle:model.title forState:UIControlStateNormal];
+                [button setTitleColor:model.titleColor.length ? [UIColor blueColor] : [UIColor blackColor] forState:UIControlStateNormal];
+                button.tag = magicNumber;
+                [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
                 button.frame = CGRectMake(0, y , self.boundingView.bounds.size.width, 50);
                 [self.boundingView addSubview:button];
                 
-                UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0,  button.frame.origin.y , button.frame.size.width,1)];
+                UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0,  button.frame.origin.y , button.frame.size.width,0.5)];
                 lineView.backgroundColor = [UIColor lightGrayColor];
                 
                 [self.boundingView addSubview:lineView];
@@ -298,16 +231,17 @@
             
             for (int i = 0 ; i < buttonArray.count ; i ++) {
                 
-                NSString * buttonTitle = buttonArray[i];
+                JRAlertViewModel *model = buttonArray[i];
                 UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                [button setTitle:buttonTitle forState:UIControlStateNormal];
-                [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-                
+                [button setTitle:model.title forState:UIControlStateNormal];
+                [button setTitleColor:model.titleColor.length ? [UIColor blueColor] : [UIColor blackColor] forState:UIControlStateNormal];
+                button.tag = magicNumber + i;
+                [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
                 button.frame = CGRectMake(self.boundingView.bounds.size.width / buttonArray.count * i, y, self.boundingView.bounds.size.width / buttonArray.count, 50);
                 [self.boundingView addSubview:button];
                 
                 if (i != buttonArray.count - 1) {
-                    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(button.frame) - 1, button.frame.origin.y, 1, button.frame.size.height)];
+                    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(button.frame) - 0.5, button.frame.origin.y, 0.5, button.frame.size.height)];
                     lineView.backgroundColor = [UIColor lightGrayColor];
                     
                     [self.boundingView addSubview:lineView];
@@ -356,58 +290,12 @@
 }
 
 
-- (void)addAttibuteTitle:(NSAttributedString *)title {
-    
-    if (!title.length) {
-        return;
-    }
-    self.titleLabel.center = CGPointMake(self.boundingView.center.x , self.titleLabel.center.y);
-    [self.boundingView addSubview:self.titleLabel];
-    self.titleLabel.attributedText = title;
-}
-
-- (void)addAttibuteMessage:(NSAttributedString *)message {
-    if (!message.length) {
-        return;
-    }
-    
-    CGFloat height = [message.string boundingRectWithSize:CGSizeMake(self.boundingView.bounds.size.width - 48, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:self.messageLabel.font} context:nil].size.height;
-    if (!self.titleLabel.text.length) {
-        self.messageLabel.frame = CGRectMake(0, 24, self.boundingView.bounds.size.width - 48, height);
-    } else {
-        self.messageLabel.frame = CGRectMake(0, CGRectGetMaxY(self.titleLabel.frame) + 12, self.boundingView.bounds.size.width - 48, height);
-    }
-    
-    [self.boundingView addSubview:self.messageLabel];
-    self.messageLabel.center = CGPointMake(self.boundingView.center.x, self.messageLabel.center.y);
-    self.messageLabel.attributedText = message;
-}
-
-
-- (void)addCustomContentView:(UIView *)contentView {
-    
-    if (!contentView) {
-        return;
-    }
-    
-    self.contentView = contentView;
-    
-    if (!self.titleLabel.text.length) {
-        self.contentView.frame = CGRectMake(0, 24, self.boundingView.bounds.size.width, contentView.bounds.size.height);
-    } else {
-        self.contentView.frame = CGRectMake(0, CGRectGetMaxY(self.titleLabel.frame) + 12, self.boundingView.bounds.size.width, contentView.bounds.size.height);
-    }
-    
-    [self.boundingView addSubview:contentView];
-    
-}
-
-
 - (void)buttonClick:(UIButton *)sender {
     
-    !self.clickBlock?:self.clickBlock();
+    !self.clickBlock?:self.clickBlock(sender.tag  - magicNumber);
     
-    
+    [self dismiss];
+
 }
 
 
@@ -439,9 +327,170 @@
 }
 
 - (void)dismiss {
-    
-    
-    
+    [self removeFromSuperview];
 }
 
 @end
+
+
+@implementation JRCustomAlertView(AttributedString)
+
++ (instancetype)alertViewWithAttributedTitle:(NSAttributedString *)title
+                           Attributedmessage:(NSAttributedString *)message
+                                        type:(AlertViewStyleType)type
+                                       click:(AlertViewClick)clickBlock
+                                     buttons:(NSString *)buttons,... {
+    NSMutableArray *buttonArray = [NSMutableArray array];
+    va_list args;
+    va_start(args, buttons);
+    for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
+        JRAlertViewModel *buttonModel = [[JRAlertViewModel alloc] init];
+        buttonModel.title = key;
+        buttonModel.titleColor = @"";
+        [buttonArray addObject:buttonModel];
+    }
+    va_end(args);
+    return [JRCustomAlertView alertViewWithAttributedTitle:title Attributedmessage:message type:type click:clickBlock buttonArray:buttonArray];
+}
+
++ (instancetype)alertViewWithAttributedTitle:(NSAttributedString *)title
+                           Attributedmessage:(NSAttributedString *)message
+                                        type:(AlertViewStyleType)type
+                                       click:(AlertViewClick)clickBlock
+                                 buttonArray:(NSArray <JRAlertViewModel *>*)buttons {
+    JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    view.clickBlock = clickBlock;
+    view.attributedtitle = title;
+    view.type = type;
+    [view addAttibuteTitle:title];
+    [view addAttibuteMessage:message];
+    [view addButtons:buttons];
+    return view;
+}
+
+
+- (void)addAttibuteTitle:(NSAttributedString *)title {
+    
+    if (!title.length) {
+        return;
+    }
+    self.titleLabel.center = CGPointMake(self.boundingView.center.x , self.titleLabel.center.y);
+    [self.boundingView addSubview:self.titleLabel];
+    self.titleLabel.attributedText = title;
+}
+
+- (void)addAttibuteMessage:(NSAttributedString *)message {
+    if (!message.length) {
+        return;
+    }
+
+    CGFloat height = [message boundingRectWithSize:CGSizeMake(self.boundingView.bounds.size.width - 48, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading | NSStringDrawingTruncatesLastVisibleLine context:nil].size.height;
+    if (!self.titleLabel.text.length) {
+        self.messageLabel.frame = CGRectMake(0, 24, self.boundingView.bounds.size.width - 48, height);
+    } else {
+        self.messageLabel.frame = CGRectMake(0, CGRectGetMaxY(self.titleLabel.frame) + 12, self.boundingView.bounds.size.width - 48, height);
+    }
+    
+    [self.boundingView addSubview:self.messageLabel];
+    self.messageLabel.center = CGPointMake(self.boundingView.center.x, self.messageLabel.center.y);
+    self.messageLabel.attributedText = message;
+}
+@end
+
+
+@implementation JRCustomAlertView (CustomContView)
++ (instancetype)alertViewWithTitle:(NSString *)title
+                       contentView:(UIView *)contentView
+                              type:(AlertViewStyleType)type
+                             click:(AlertViewClick)clickBlock
+                           buttons:(NSString *)buttons,... {
+    NSMutableArray *buttonArray = [NSMutableArray array];
+    va_list args;
+    va_start(args, buttons);
+    for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
+        JRAlertViewModel *buttonModel = [[JRAlertViewModel alloc] init];
+        buttonModel.title = key;
+        buttonModel.titleColor = @"";
+        [buttonArray addObject:buttonModel];
+    }
+    va_end(args);
+    
+    return [JRCustomAlertView alertViewWithTitle:title contentView:contentView type:type click:clickBlock buttonArray:buttonArray];
+}
+
++ (instancetype)alertViewWithTitle:(NSString *)title
+                       contentView:(UIView *)contentView
+                              type:(AlertViewStyleType)type
+                             click:(AlertViewClick)clickBlock
+                       buttonArray:(NSArray <JRAlertViewModel *>*)buttons {
+    
+    JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    view.clickBlock = clickBlock;
+    view.title = title;
+    view.contentView = contentView;
+    view.type = type;
+    [view addTitleView:title];
+    [view addCustomContentView:contentView];
+    [view addButtons:buttons];
+    return view;
+}
+
+
++ (instancetype)alertViewWithAttributedTitle:(NSAttributedString *)title
+                                 contentView:(UIView *)contentView
+                                        type:(AlertViewStyleType)type
+                                       click:(AlertViewClick)clickBlock
+                                     buttons:(NSString *)buttons,... {
+    NSMutableArray *buttonArray = [NSMutableArray array];
+    va_list args;
+    va_start(args, buttons);
+    for (NSString *key = buttons; key != nil; key = (__bridge NSString *)va_arg(args, void *)) {
+        JRAlertViewModel *buttonModel = [[JRAlertViewModel alloc] init];
+        buttonModel.title = key;
+        buttonModel.titleColor = @"";
+        [buttonArray addObject:buttonModel];
+    }
+    va_end(args);
+    return [JRCustomAlertView alertViewWithAttributedTitle:title contentView:contentView type:type click:clickBlock buttonArray:buttonArray];
+}
+
+
++ (instancetype)alertViewWithAttributedTitle:(NSAttributedString *)title
+                                 contentView:(UIView *)contentView
+                                        type:(AlertViewStyleType)type
+                                       click:(AlertViewClick)clickBlock
+                                 buttonArray:(NSArray <JRAlertViewModel *>*)buttons {
+    
+    JRCustomAlertView *view  = [[JRCustomAlertView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    view.clickBlock = clickBlock;
+    view.attributedtitle = title;
+    view.contentView = contentView;
+    view.type = type;
+    [view addAttibuteTitle:title];
+    [view addCustomContentView:contentView];
+    [view addButtons:buttons];
+    return view;
+}
+
+
+- (void)addCustomContentView:(UIView *)contentView {
+    
+    if (!contentView) {
+        return;
+    }
+    
+    self.contentView = contentView;
+    
+    if (!self.titleLabel.text.length) {
+        self.contentView.frame = CGRectMake(0, 24, self.boundingView.bounds.size.width, contentView.bounds.size.height);
+    } else {
+        self.contentView.frame = CGRectMake(0, CGRectGetMaxY(self.titleLabel.frame) + 12, self.boundingView.bounds.size.width, contentView.bounds.size.height);
+    }
+    
+    [self.boundingView addSubview:contentView];
+    
+}
+
+
+@end
+
